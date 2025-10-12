@@ -32,7 +32,7 @@ function reducer(state, action) {
     case "dataReceived":
       return { ...state, questions: action.payload, status: "ready" };
     case "dataFailed":
-      return { ...state, questions: action.payload, status: "error" };
+      return { ...state, questions: [], status: "error" };
     case "start":
       return { ...state, status: "active", secondsRemaining: state.questions.length * SECS_PER_QUESTION };
     case "newAnswer":
@@ -54,12 +54,12 @@ function reducer(state, action) {
 export default function App() {
   const [{questions,status,index,answer,points,highscore,secondsRemaining}, dispatch] = useReducer(reducer, initialState);
 
-  const numQuestions = questions.length;
-  const maxPossiblePoints = questions.reduce((prev,cur) => prev + cur.points , 0)
+  const numQuestions = Array.isArray(questions) ? questions.length : 0;
+  const maxPossiblePoints = Array.isArray(questions) ? questions.reduce((prev,cur) => prev + cur.points , 0) : 0;
 
   useEffect(function () {
     fetch(
-      "https://thereactquizapp-qa43--8000--96435430.local-credentialless.webcontainer.io/questions"
+      "http://localhost:9000/questions"
     )
       .then((res) => res.json())
       .then((data) => dispatch({ type: "dataReceived", payload: data }))
